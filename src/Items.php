@@ -3,6 +3,7 @@
 namespace NovaItemsField;
 
 use Laravel\Nova\Fields\Field;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Items extends Field
 {
@@ -20,13 +21,14 @@ class Items extends Field
     public $listFirst = false;
     public $detailItemComponent = 'detail-nova-items-field-item';
 
+    protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
+    {
+        $model->$attribute = json_decode($request->$attribute, true);
+    }
+
     public function resolve($resource, $attribute = null)
     {
         parent::resolve($resource, $attribute);
-
-        $this->fillUsing(function($request, $model, $attribute, $requestAttribute) {
-            $model->$attribute = $this->isNullValue($request->$attribute) ? null : json_decode($request->$attribute, true);
-        });
 
         $this->withMeta([
             'max' => $this->max,
